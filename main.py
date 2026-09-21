@@ -1,9 +1,9 @@
 """Smart Fitness Session Analyzer — entry point.
 
-Pulls simulated data from the instructor-supplied ``data_generator``,
+Pulls simulated data from the ``data_generator``,
 converts it into typed objects, validates it, analyzes the session, and
 prints a report. Running this file against every documented scenario is a
-quick way to sanity-check the classification rules end to end.
+quick way to sanity check the classification rules end to end.
 """
 
 from data_generator import available_scenarios, generate_fitness_data

@@ -1,7 +1,7 @@
 """Domain objects for the Smart Fitness Session Analyzer.
 
-The instructor-supplied ``data_generator`` module returns plain dictionaries.
-This module wraps that raw data in small, purpose-built classes so the rest
+The ``data_generator`` module returns plain dictionaries.
+This module wraps that raw data in small, purpose built classes so the rest
 of the program (validation, analysis, reporting) works with typed objects
 instead of loose dicts.
 """
@@ -12,7 +12,7 @@ from typing import List, Optional
 
 @dataclass
 class ParticipantProfile:
-    """A participant's personal baseline readings.
+    """A participants personal baseline readings.
 
     All later analysis is relative to these baseline values, since
     "normal" heart rate, skin response, and temperature differ per person.
@@ -38,7 +38,7 @@ class Observation:
     """A single raw measurement window, before validation.
 
     Fields keep whatever the generator produced, including ``None`` or
-    out-of-range values -- validation is a separate, explicit step so it
+    out of range values. Validation is a separate explicit step so it
     can be tested and reasoned about on its own.
     """
 

@@ -12,14 +12,16 @@
 | `main.py` | Wires it all together; run this. |
 | `test_analyzer.py` | Unit tests for validation and classification (no pytest needed). |
 
-## Run it
+## Clone and Run  
 
 ```bash
+git clone https://github.com/maxfinanger/Assignment1FitnessTracker
+cd Assignment1FitnessTracker
 python3 main.py            # prints a report for every documented scenario
 python3 test_analyzer.py   # runs the unit tests
 ```
 
-## Design notes (for the report)
+## Report
 
 - **Separation of concerns**: generation (given) → typed objects (`models.py`)
   → validation (`validation.py`) → analysis (`analysis.py`) → presentation

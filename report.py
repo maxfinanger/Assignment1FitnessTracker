@@ -1,4 +1,4 @@
-"""Builds a human-readable report from the analysis results."""
+"""Builds a report from the analysis results."""
 
 from typing import List
 

@@ -1,9 +1,9 @@
 """Validation rules for raw fitness observations.
 
 DATA_DESCRIPTION.md gives "expected ranges" for each field and warns that
-poor-quality scenarios contain ``None`` values and impossible values. This
+poor quality scenarios contain ``None`` values and impossible values. This
 module turns those expectations into explicit, testable rules and produces
-a :class:`~models.ValidatedObservation` for every raw observation -- nothing
+a :class:`~models.ValidatedObservation` for every raw observation. Nothing
 is silently dropped, so the report can always say how much data was usable.
 """
 

@@ -1,4 +1,4 @@
-"""Lightweight unit tests (no pytest dependency required).
+"""Lightweight unit tests.
 
 Run with:  python3 test_analyzer.py
 """
