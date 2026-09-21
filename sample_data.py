@@ -1,7 +1,7 @@
 """Scenario definitions and session loading.
 
 The assignment's suggested repository layout names this file ``sample_data.py``.
-It sits between the instructor-supplied ``data_generator`` module (which is
+It sits between the supplied ``data_generator`` module (which is
 used unmodified) and the rest of the program: it names the scenarios the
 program demonstrates and builds ``TrainingSession`` objects from them.
 
@@ -15,7 +15,7 @@ from data_generator import available_scenarios, generate_fitness_data
 from models import TrainingSession
 
 # The five required scenarios: normal cases, an unusual case and an
-# invalid-data case. Each entry fixes a seed so the demonstration output is
+# invalid data case. Each entry fixes a seed so the demonstration output is
 # reproducible for whoever marks it.
 DEMO_SCENARIOS: List[Dict] = [
     {

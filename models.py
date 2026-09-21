@@ -1,7 +1,5 @@
 """Domain classes for the Smart Fitness Session Analyzer.
 
-Design summary (expanded in README.md):
-
 * ``ParticipantProfile`` -- encapsulates a participant's personal reference
   values behind read-only properties.
 * ``BaseObservation`` -- the generic idea of "one measurement window from a
@@ -9,7 +7,7 @@ Design summary (expanded in README.md):
   to validate and serialise *those* fields.
 * ``FitnessObservation`` -- a fitness-specific window that adds heart rate,
   skin response, temperature and activity level. It **overrides**
-  ``validate()`` and ``to_dict()``, extending the base behaviour via
+  ``validate()`` and ``to_dict()``, extending the base behavior via
   ``super()`` rather than replacing it.
 * ``TrainingSession`` -- **composition**: a session owns one
   ``ParticipantProfile`` and a list of ``FitnessObservation`` objects. The
@@ -44,7 +42,7 @@ class ParticipantProfile:
     """A participant and their personal reference measurements.
 
     Encapsulation: the baselines are stored in protected attributes and
-    exposed through read-only properties. Baselines are the fixed point that
+    exposed through read only properties. Baselines are the fixed point that
     every later comparison is made against, so allowing code elsewhere to
     reassign them would silently invalidate an entire analysis.
     """
@@ -71,7 +69,7 @@ class ParticipantProfile:
         self._baseline_skin_response = float(baseline_skin_response)
         self._baseline_temperature = float(baseline_temperature)
 
-    # -- read-only properties (encapsulation) ---------------------------
+    # -- read only properties (encapsulation) ---------------------------
 
     @property
     def participant_id(self) -> str:
@@ -137,7 +135,7 @@ class BaseObservation:
         """Return a list of problems with this window (empty list == clean).
 
         Subclasses override this and call ``super().validate()`` so the shared
-        signal-quality rules are applied exactly once, in one place.
+        signal quality rules are applied exactly once, in one place.
         """
         issues: List[str] = []
         if self.signal_quality is None:
@@ -184,7 +182,7 @@ class FitnessObservation(BaseObservation):
     # -- overridden methods ---------------------------------------------
 
     def validate(self) -> List[str]:
-        """Extend the base checks with the fitness-specific field rules."""
+        """Extend the base checks with the fitness specific field rules."""
         issues = super().validate()          # shared signal-quality rules
         issues.extend(self._check_bounded("heart_rate", self.heart_rate, HEART_RATE_BOUNDS))
         issues.extend(self._check_bounded("temperature", self.temperature, TEMPERATURE_BOUNDS))
@@ -211,7 +209,7 @@ class FitnessObservation(BaseObservation):
         """Check one optional numeric field against inclusive bounds.
 
         A staticmethod because it depends only on its arguments, never on a
-        particular observation -- which also makes it directly unit-testable.
+        particular observation -- which also makes it directly unit testable.
         """
         low, high = bounds
         if value is None:
@@ -262,7 +260,7 @@ class TrainingSession:
     (they are created for it and have no independent life outside it) and
     holds the participant profile that gives those numbers meaning.
 
-    The observation list is protected and exposed as a read-only copy, so the
+    The observation list is protected and exposed as a read only copy, so the
     only way to add data is through ``add_observation()``, which enforces the
     type of what goes in.
     """

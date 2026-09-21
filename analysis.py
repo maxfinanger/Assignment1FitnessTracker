@@ -1,7 +1,7 @@
 """Standalone calculation, validation and classification functions.
 
-These are plain module-level functions rather than methods because each one
-is a self-contained calculation over data passed in: that keeps them easy to
+These are plain module level functions rather than methods because each one
+is a self contained calculation over data passed in: that keeps them easy to
 test in isolation and reusable outside a ``TrainingSession``.
 """
 
