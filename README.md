@@ -7,15 +7,9 @@
 
 ## 1. Description
 
-A fitness centre receives simulated measurement windows from wearable devices worn
-during training sessions. This program organizes that raw data into participants and
-sessions, validates every measurement, compares the session against the participants
-own reference values, classifies the intensity of the session, detects whether the
-participant was recovering, and prints a readable report explaining its conclusion.
+This program simulates the analysis of training data from smart watches or other training devices, and generate reports based in that data. This program structures and organizes the raw data into the different participants and their sessions, it validates every measurement and compares the sessions against the participants reference values. It classifies the sessions intensity, and detects if the participants is in a recovery, and all the sessions are printed showing the summary and its conclusion.
 
-The program runs five scenarios end to end: a resting session, a moderate session, a
-hard session, a session followed by recovery, and a session whose sensor data is
-unusable.
+The program can run five scenarios end to end: a resting session, a moderate session, a hard session, a session followed by recovery, and a session where the sensor data is unusable.
 
 The measurement data comes from the instructor-supplied `data_generator.py`, which is included and unmodified.
 
@@ -61,7 +55,7 @@ library (`random`, `statistics`, `typing`). `requirements.txt` records this.
 | `data_generator.py` | Instructor-supplied, unmodified. |
 | `requirements.txt` | States that only the standard library is used. |
 
-This differs slightly from the suggested layout: the analysis, presentation and object model live in three separate modules rather than inside `main.py`. The reason is that the three concerns change for different reasons. A new classification rule, a change to the report layout, and a new measurement field are three unrelated edits. Keeping them apart means each can be changed and tested without risk to the others. `main.py` remains the single entry point and the program runs from the repository root with no path changes.
+This differs from the suggested layout. The analysis, presentation and object model are separated in three separate files rather than inside `main.py`. The reason is that the three concerns change for different reasons. A new classification rule, a change to the report layout, and a new measurement field are three unrelated edits. Keeping them apart means each can be changed and tested without risk to the others. In my experience larger files becomes cluttered and harder to read, therefore im in the habit of separating files i deem can grow too large. `main.py` remains the single entry point and the program runs from the repository root with no path changes.
 
 ---
 
@@ -105,15 +99,14 @@ self._observations: List[FitnessObservation] = []
 ```
 
 This is composition rather than inheritance because a session **has** a participant
-and **has** observations — it is not a kind of either. The relationship is a strong
-one in both directions: the observations are created for the session and have no
+and **has** observations, but it is not a kind of either. The relationship is strong in both directions. The observations are created for the session and have no
 independent life outside it, and a session cannot meaningfully exist without a
 participant, which is why the constructor refuses to build one without a valid
 `ParticipantProfile`.
 
 ### Encapsulation — protected attributes behind properties
 
-`ParticipantProfile` stores its baselines as `_baseline_heart_rate` and so on, exposing them only through read only properties. Baselines are the reference point for every calculation in the program, so allowing other code to reassign them mid analysis would silently invalidate results that still looked perfectly plausible.
+`ParticipantProfile` stores its baselines as `_baseline_heart_rate` etc, exposing them only through read only properties. Baselines are the reference point for every calculation in the program. Allowing other code to reassign them mid analysis would silently invalidate results that still looked perfectly plausible.
 
 `TrainingSession` protects its observation list the same way. The `observations`
 property returns a **copy**, so external code cannot append to, reorder or empty the
@@ -127,15 +120,14 @@ def observations(self) -> List[FitnessObservation]:
 ```
 
 The only route in is `add_observation()`, which rejects anything that is not a
-`FitnessObservation` and keeps the list ordered by timestamp — an ordering the
+`FitnessObservation` and keeps the list ordered by timestamp. Ordering the
 recovery check depends on being correct.
 
 ### Inheritance and overriding — `BaseObservation` → `FitnessObservation`
 
 The split reflects a real distinction: *every* sensor window has a timestamp and a
 signal quality, but only a fitness window has a heart rate. Putting the shared
-concepts in a base class means a future observation type (a sleep window, say) would
-inherit the timestamp and signal quality handling for free.
+concepts in a base class means a future observation type (ex. a sleep paramenter) would inherit the timestamp and signal quality handling.
 
 `FitnessObservation` overrides two methods, and in both cases **extends** the parent
 via `super()` rather than replacing it:
@@ -148,8 +140,7 @@ def validate(self) -> List[str]:
     ...
 ```
 
-This matters: the signal quality rule is written once, in one place, and cannot drift out of step between observation types. `tests.py` locks the behavior in with
-`test_subclass_extends_rather_than_replaces_validation`, which checks that a bad
+The signal quality rule is written once, in one place, and cannot drift out of step between observation types. `tests.py` locks the behavior in with `test_subclass_extends_rather_than_replaces_validation`, which checks that a bad
 signal quality value on a `FitnessObservation` is still caught by the inherited rule.
 
 ### Class and static methods
@@ -177,8 +168,7 @@ methods, because each is a self contained operation on data passed in:
 ### Lists and dictionaries
 
 Sessions hold a `list` of observations; validation issues accumulate in `list`s;
-`DEMO_SCENARIOS` is a list of dictionaries; and the whole analysis result is returned
-as a nested `dict` (see section 7).
+`DEMO_SCENARIOS` is a list of dictionaries; and the whole analysis result is returned as a nested `dict`.
 
 ---
 
@@ -245,7 +235,7 @@ the program refuses to produce one rather than guessing.
 
 **2 — `recovering`** if heart rate fell at least 12 bpm and activity fell at least 0.10 from the session's peak to its closing block, *and* closing activity is below 0.65.
 
-Recovery is checked before the intensity rules because a recovering session can sit at almost any average intensity — its average is a blend of the hard part and the calm part. So the level based rules below would otherwise mislabel it.
+Recovery is checked before the intensity rules because a recovering session can sit at almost any average intensity. Its average is a blend of the hard part and the calm part. So the level based rules below would otherwise mislabel it.
 
 **3 — `resting`** if heart rate is at most 10 bpm above baseline and activity is at
 most 0.25.
@@ -264,11 +254,11 @@ The assignment asks whether measurements decline *near the end* of a session, so
 program compares the **closing block** of windows against the **highest sustained
 earlier block**, where a block is one third of the usable windows.
 
-The obvious alternative — comparing the first third against the last third — was tried first and rejected, because it misses the most typical recovery shape of all: a session that starts calm, climbs to a peak, then falls away. There the first and last thirds can have *identical* averages while an obvious recovery sits in between.
+Alternatively comparing the first third against the last third was tried first and rejected, because it misses the most typical recovery shape of all: a session that starts calm, climbs to a peak, then falls away. There the first and last thirds can have *identical* averages while an obvious recovery sits in between.
 `test_recovery_beats_a_flat_overall_average` in `tests.py` is exactly that case, and it fails against the first third method.
 
 A block average is used rather than a single peak reading so that one noisy spike
-cannot masquerade as a peak of effort. The third condition — that closing activity must be below 0.65, was added after testing showed that hard sessions which merely dipped slightly at the end were being called recovery. A hard session that tapers a little is still a hard session; the participant must have genuinely eased off.
+cannot masquerade as a peak of effort. The third condition is that closing activity must be below 0.65, was added after testing showed that hard sessions which merely dipped slightly at the end were being called recovery. A hard session that tapers a little is still a hard session, the participant must have eased off.
 
 ### Threshold origins
 
