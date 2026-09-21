@@ -11,7 +11,7 @@
 
 A fitness centre receives simulated measurement windows from wearable devices worn
 during training sessions. This program organises that raw data into participants and
-sessions, validates every measurement, compares the session against the participant's
+sessions, validates every measurement, compares the session against the participants
 own reference values, classifies the intensity of the session, detects whether the
 participant was recovering, and prints a readable report explaining its conclusion.
 
@@ -20,6 +20,8 @@ hard session, a session followed by recovery, and a session whose sensor data is
 unusable.
 
 The measurement data comes from the instructor-supplied `data_generator.py`, which is included and unmodified.
+
+I have used Claude as a tool when developing this assignment, I used it to help me implement the initial solution and as a tool to further improve the solution to fulfill all the criteria set for this assignment.
 
 ---
 
@@ -61,13 +63,7 @@ library (`random`, `statistics`, `typing`). `requirements.txt` records this.
 | `data_generator.py` | Instructor-supplied, unmodified. |
 | `requirements.txt` | States that only the standard library is used. |
 
-This differs slightly from the suggested layout: the analysis, presentation and object
-model live in three separate modules rather than inside `main.py`. The reason is that
-the three concerns change for different reasons — a new classification rule, a change
-to the report layout, and a new measurement field are three unrelated edits — so
-keeping them apart means each can be changed and tested without risk to the others.
-`main.py` remains the single entry point and the program runs from the repository root
-with no path changes.
+This differs slightly from the suggested layout: the analysis, presentation and object model live in three separate modules rather than inside `main.py`. The reason is that the three concerns change for different reasons. A new classification rule, a change to the report layout, and a new measurement field are three unrelated edits. Keeping them apart means each can be changed and tested without risk to the others. `main.py` remains the single entry point and the program runs from the repository root with no path changes.
 
 ---
 
@@ -88,9 +84,7 @@ itself.
 
 ### `FitnessObservation(BaseObservation)` — one fitness measurement window
 
-Adds the fitness-specific fields: heart rate, skin response, temperature and activity
-level. It extends the base class's validation and serialisation rather than replacing
-them.
+Adds the fitness specific fields: heart rate, skin response, temperature and activity level. It extends the base class's validation and serialisation rather than replacing them.
 
 ### `TrainingSession` — a participant's complete session
 
@@ -121,10 +115,7 @@ participant, which is why the constructor refuses to build one without a valid
 
 ### Encapsulation — protected attributes behind properties
 
-`ParticipantProfile` stores its baselines as `_baseline_heart_rate` and so on, exposing
-them only through read-only properties. Baselines are the reference point for every
-calculation in the program, so allowing other code to reassign them mid-analysis would
-silently invalidate results that still looked perfectly plausible.
+`ParticipantProfile` stores its baselines as `_baseline_heart_rate` and so on, exposing them only through read only properties. Baselines are the reference point for every calculation in the program, so allowing other code to reassign them mid analysis would silently invalidate results that still looked perfectly plausible.
 
 `TrainingSession` protects its observation list the same way. The `observations`
 property returns a **copy**, so external code cannot append to, reorder or empty the
@@ -146,23 +137,22 @@ recovery check depends on being correct.
 The split reflects a real distinction: *every* sensor window has a timestamp and a
 signal quality, but only a fitness window has a heart rate. Putting the shared
 concepts in a base class means a future observation type (a sleep window, say) would
-inherit the timestamp and signal-quality handling for free.
+inherit the timestamp and signal quality handling for free.
 
 `FitnessObservation` overrides two methods, and in both cases **extends** the parent
 via `super()` rather than replacing it:
 
 ```python
 def validate(self) -> List[str]:
-    """Extend the base checks with the fitness-specific field rules."""
-    issues = super().validate()          # shared signal-quality rules
+    """Extend the base checks with the fitness specific field rules."""
+    issues = super().validate()          # shared signal quality rules
     issues.extend(self._check_bounded("heart_rate", self.heart_rate, HEART_RATE_BOUNDS))
     ...
 ```
 
-This matters: the signal-quality rule is written once, in one place, and cannot drift
-out of step between observation types. `tests.py` locks the behaviour in with
+This matters: the signal quality rule is written once, in one place, and cannot drift out of step between observation types. `tests.py` locks the behavior in with
 `test_subclass_extends_rather_than_replaces_validation`, which checks that a bad
-signal-quality value on a `FitnessObservation` is still caught by the inherited rule.
+signal quality value on a `FitnessObservation` is still caught by the inherited rule.
 
 ### Class and static methods
 
@@ -175,8 +165,8 @@ signal-quality value on a `FitnessObservation` is still caught by the inherited 
 
 ### Standalone functions
 
-Calculations, validation and presentation live in module-level functions rather than
-methods, because each is a self-contained operation on data passed in:
+Calculations, validation and presentation live in module level functions rather than
+methods, because each is a self contained operation on data passed in:
 
 - `audit_data_quality()` — validate every window and report what was usable
 - `summarize_measurements()` — average, minimum and maximum per field
@@ -257,25 +247,20 @@ The result of `analyze_session()` is a single structured dictionary:
 
 Rules are applied **in this order**, and the order is part of the design:
 
-**1 — `insufficient_data`** if fewer than 3 windows are usable, *or* more than 30% were
-rejected, *or* average signal quality is below 0.60.
+**1 — `insufficient_data`** if fewer than 3 windows are usable, *or* more than 30% were rejected, *or* average signal quality is below 0.60.
 
 This gate runs first deliberately. An intensity label computed from mostly-unusable
 windows would look just as authoritative as a real one while resting on nothing, so
 the program refuses to produce one rather than guessing.
 
-**2 — `recovering`** if heart rate fell at least 12 bpm and activity fell at least 0.10
-from the session's peak to its closing block, *and* closing activity is below 0.65.
+**2 — `recovering`** if heart rate fell at least 12 bpm and activity fell at least 0.10 from the session's peak to its closing block, *and* closing activity is below 0.65.
 
-Recovery is checked before the intensity rules because a recovering session can sit at
-almost any average intensity — its average is a blend of the hard part and the calm
-part — so the level-based rules below would otherwise mislabel it.
+Recovery is checked before the intensity rules because a recovering session can sit at almost any average intensity — its average is a blend of the hard part and the calm part. So the level based rules below would otherwise mislabel it.
 
 **3 — `resting`** if heart rate is at most 10 bpm above baseline and activity is at
 most 0.25.
 
-**4 — `high_activity`** if heart rate is at least 45 bpm above baseline and activity is
-at least 0.65.
+**4 — `high_activity`** if heart rate is at least 45 bpm above baseline and activity is at least 0.65.
 
 **5 — `moderate_activity`** if heart rate is at least 15 bpm above baseline and
 activity is at least 0.30.
@@ -289,27 +274,15 @@ The assignment asks whether measurements decline *near the end* of a session, so
 program compares the **closing block** of windows against the **highest sustained
 earlier block**, where a block is one third of the usable windows.
 
-The obvious alternative — comparing the first third against the last third — was tried
-first and rejected, because it misses the most typical recovery shape of all: a session
-that starts calm, climbs to a peak, then falls away. There the first and last thirds
-can have *identical* averages while an obvious recovery sits in between.
-`test_recovery_beats_a_flat_overall_average` in `tests.py` is exactly that case, and it
-fails against the first-third method.
+The obvious alternative — comparing the first third against the last third — was tried first and rejected, because it misses the most typical recovery shape of all: a session that starts calm, climbs to a peak, then falls away. There the first and last thirds can have *identical* averages while an obvious recovery sits in between.
+`test_recovery_beats_a_flat_overall_average` in `tests.py` is exactly that case, and it fails against the first third method.
 
 A block average is used rather than a single peak reading so that one noisy spike
-cannot masquerade as a peak of effort. The third condition — that closing activity must
-be below 0.65 — was added after testing showed that hard sessions which merely dipped
-slightly at the end were being called recovery. A hard session that tapers a little is
-still a hard session; the participant must have genuinely eased off.
+cannot masquerade as a peak of effort. The third condition — that closing activity must be below 0.65, was added after testing showed that hard sessions which merely dipped slightly at the end were being called recovery. A hard session that tapers a little is still a hard session; the participant must have genuinely eased off.
 
 ### Threshold origins
 
-The thresholds are drawn from the documented ranges in `DATA_DESCRIPTION.md` and from
-normal exercise physiology, **not** reverse-engineered from the generator's internal
-constants — the generator does not reveal its labels, and reading its source to match
-them would produce a program that classifies nothing and merely recognises one
-particular data source. They are named constants at the top of `analysis.py` so they
-can be inspected and adjusted in one place.
+The thresholds are drawn from the documented ranges in `DATA_DESCRIPTION.md` and from normal exercise physiology, **not** reverse engineered from the generator's internal constants. The generator does not reveal its labels, and reading its source to match them would produce a program that classifies nothing and merely recognises one particular data source. They are named constants at the top of `analysis.py` so they can be inspected and adjusted in one place.
 
 Testing across 300 seeds per scenario (1500 sessions) classifies every one correctly.
 
@@ -317,7 +290,7 @@ Testing across 300 seeds per scenario (1500 sessions) classifies every one corre
 
 ## 8. Example output
 
-Abridged — `python3 main.py` prints a full report for each of the five scenarios.
+`python3 main.py` prints a full report for each of the five scenarios.
 
 ```
 ==================================================================
@@ -403,10 +376,10 @@ poor_quality        P005          0/12      insufficient_data
 
 ## 9. Testing
 
-`python3 tests.py` runs 40 tests with no third-party test runner. They are grouped
+`python3 tests.py` runs 40 tests with no third party test runner. They are grouped
 into four areas:
 
-- **Object model** — read-only baselines, protected observation list, type checking on
+- **Object model** — read only baselines, protected observation list, type checking on
   `add_observation()`, timestamp ordering, that `FitnessObservation` extends
   `BaseObservation`, and that overriding extends rather than replaces the parent.
 - **Validation** — missing values, impossible values, negative movement, booleans
@@ -414,8 +387,8 @@ into four areas:
   rejected.
 - **Calculations** — average/minimum/maximum including with missing values, baseline
   comparison, and four recovery cases: a declining session, a steady session, a
-  too-short session, the climb-then-drop case, and a hard session that only dips.
-- **End-to-end** — all five scenarios classify correctly, the result is a dictionary
+  too short session, the "climb then drop" case, and a hard session that only dips.
+- **End to end** — all five scenarios classify correctly, the result is a dictionary
   with every expected section, the quality gate runs before the intensity rules, an
   empty session does not crash, and the labels hold across several different seeds.
 
@@ -423,18 +396,15 @@ into four areas:
 
 ## 10. Known limitations
 
-- **Thresholds are hand-set, not learned.** They classify all 1500 test sessions
-  correctly, but they are tuned against one simulated data source. Real wearable data
-  would need them re-examined against labelled sessions.
+- **Thresholds are hand set, not learned.** They classify all 1500 test sessions
+  correctly, but they are tuned against one simulated data source. Real wearable data would need them reexamined against labelled sessions.
 
-- **Recovery needs at least three usable windows** and compares thirds of the session.
-  On a very short session the blocks become one window each and the detection is
-  correspondingly noisy.
+- **Recovery needs at least three usable windows** and compares thirds of the session. On a very short session the blocks become one window each and the      detection is correspondingly noisy.
 
-- **Interval-splitting is crude.** A session containing repeated hard/easy intervals
+- **Interval splitting is crude.** A session containing repeated hard/easy intervals
   may be labelled `recovering` if it happens to end on an easy interval, or
   `uncertain` if the averages fall between categories. Detecting interval structure
-  would need per-window segmentation rather than session-level averages.
+  would need per window segmentation rather than session level averages.
 
 - **A single measurement drives rejection.** A window is dropped if *any* field is
   invalid, even when the remaining fields are fine. Partial use of damaged windows
@@ -442,9 +412,7 @@ into four areas:
   would recover more data, at the cost of more complicated bookkeeping.
 
 - **Skin response and temperature are reported but do not affect classification.**
-  Both are summarised and compared against baseline, but the rules use only heart rate
-  and activity level, because the relationship between skin response and exercise
-  intensity is too participant-dependent to threshold confidently on simulated data.
+  Both are summarised and compared against baseline, but the rules use only heart rate and activity level, because the relationship between skin response and exercise intensity is too participant dependent to threshold confidently on simulated data.
 
 - **No persistence.** Results are printed and discarded. The dictionary form of the
   result was chosen partly so that writing it to JSON later would be straightforward.
