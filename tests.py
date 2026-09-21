@@ -197,7 +197,7 @@ def test_summarize_ignores_missing_values():
 def test_summaries_cover_every_field():
     summaries = summarize_measurements([make_observation(timestamp=t) for t in range(4)])
     for field in ["heart_rate", "skin_response", "temperature", "activity_level"]:
-        check(summaries[field] is not None, f"{field} should be summarised")
+        check(summaries[field] is not None, f"{field} should be summarized")
         for statistic in ["average", "minimum", "maximum"]:
             check(statistic in summaries[field], f"{field} should report {statistic}")
 
@@ -356,7 +356,7 @@ def test_report_contains_the_key_sections():
 
 def test_report_handles_a_session_with_no_usable_data():
     report = build_report(analyze_session(load_session("poor_quality", seed=13)))
-    check("no usable data" in report, "report should say when there is nothing to summarise")
+    check("no usable data" in report, "report should say when there is nothing to summarize")
 
 
 def test_format_measurement_handles_missing_summary():

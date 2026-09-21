@@ -18,7 +18,7 @@ RESTING_HEART_RATE_DELTA = 10.0    # bpm above personal baseline
 MODERATE_HEART_RATE_DELTA = 15.0
 HIGH_HEART_RATE_DELTA = 45.0
 
-RESTING_ACTIVITY = 0.25            # normalised movement level
+RESTING_ACTIVITY = 0.25            # normalized movement level
 MODERATE_ACTIVITY = 0.30
 HIGH_ACTIVITY = 0.65
 
@@ -273,7 +273,7 @@ def analyze_session(session: TrainingSession) -> Dict:
 
     A dictionary (rather than an object) is the deliverable here because the
     assignment asks for a structured result: it is easy to print, to compare
-    between scenarios, and to serialise if the fitness centre ever wants to
+    between scenarios, and to serialize if the fitness centre ever wants to
     store or transmit it.
     """
     quality = audit_data_quality(session)

@@ -4,7 +4,7 @@
   values behind read-only properties.
 * ``BaseObservation`` -- the generic idea of "one measurement window from a
   wearable sensor": it knows its timestamp and signal quality, and knows how
-  to validate and serialise *those* fields.
+  to validate and serialize *those* fields.
 * ``FitnessObservation`` -- a fitness-specific window that adds heart rate,
   skin response, temperature and activity level. It **overrides**
   ``validate()`` and ``to_dict()``, extending the base behavior via
@@ -316,7 +316,7 @@ class TrainingSession:
             session.add_observation(FitnessObservation.from_dict(raw))
         return session
 
-    # -- summarising -------------------------------------------------------
+    # -- summarizing -------------------------------------------------------
 
     @staticmethod
     def summarize(values: List[float]) -> Optional[Dict[str, float]]:

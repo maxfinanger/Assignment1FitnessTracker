@@ -10,7 +10,7 @@
 ## 1. Description
 
 A fitness centre receives simulated measurement windows from wearable devices worn
-during training sessions. This program organises that raw data into participants and
+during training sessions. This program organizes that raw data into participants and
 sessions, validates every measurement, compares the session against the participants
 own reference values, classifies the intensity of the session, detects whether the
 participant was recovering, and prints a readable report explaining its conclusion.
@@ -21,7 +21,7 @@ unusable.
 
 The measurement data comes from the instructor-supplied `data_generator.py`, which is included and unmodified.
 
-I have used Claude as a tool when developing this assignment, I used it to help me implement the initial solution and as a tool to further improve the solution to fulfill all the criteria set for this assignment.
+I have used Claude as a tool when developing this assignment, I used it to help me implement the initial solution and as a tool to further improve the solution to fulfill all the criteria set for this assignment. 
 
 ---
 
@@ -79,12 +79,12 @@ be the fixed point that every later comparison is made against.
 
 Knows only what *every* wearable measurement window has: when it was taken
 (`timestamp`) and how much the device trusted the reading (`signal_quality`). It can
-validate those two fields, report whether the reading is trustworthy, and serialise
+validate those two fields, report whether the reading is trustworthy, and serialize
 itself.
 
 ### `FitnessObservation(BaseObservation)` — one fitness measurement window
 
-Adds the fitness specific fields: heart rate, skin response, temperature and activity level. It extends the base class's validation and serialisation rather than replacing them.
+Adds the fitness specific fields: heart rate, skin response, temperature and activity level. It extends the base class's validation and serialization rather than replacing them.
 
 ### `TrainingSession` — a participant's complete session
 
@@ -282,7 +282,7 @@ cannot masquerade as a peak of effort. The third condition — that closing acti
 
 ### Threshold origins
 
-The thresholds are drawn from the documented ranges in `DATA_DESCRIPTION.md` and from normal exercise physiology, **not** reverse engineered from the generator's internal constants. The generator does not reveal its labels, and reading its source to match them would produce a program that classifies nothing and merely recognises one particular data source. They are named constants at the top of `analysis.py` so they can be inspected and adjusted in one place.
+The thresholds are drawn from the documented ranges in `DATA_DESCRIPTION.md` and from normal exercise physiology, **not** reverse engineered from the generator's internal constants. The generator does not reveal its labels, and reading its source to match them would produce a program that classifies nothing and merely recognizes one particular data source. They are named constants at the top of `analysis.py` so they can be inspected and adjusted in one place.
 
 Testing across 300 seeds per scenario (1500 sessions) classifies every one correctly.
 
@@ -412,7 +412,7 @@ into four areas:
   would recover more data, at the cost of more complicated bookkeeping.
 
 - **Skin response and temperature are reported but do not affect classification.**
-  Both are summarised and compared against baseline, but the rules use only heart rate and activity level, because the relationship between skin response and exercise intensity is too participant dependent to threshold confidently on simulated data.
+  Both are summarized and compared against baseline, but the rules use only heart rate and activity level, because the relationship between skin response and exercise intensity is too participant dependent to threshold confidently on simulated data.
 
 - **No persistence.** Results are printed and discarded. The dictionary form of the
   result was chosen partly so that writing it to JSON later would be straightforward.
