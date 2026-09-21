@@ -128,4 +128,3 @@ def generate_fitness_data(
         observations.append(observation)
 
     return profile, observations
-

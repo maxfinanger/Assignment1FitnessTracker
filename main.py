@@ -1,50 +1,52 @@
-"""Smart Fitness Session Analyzer — entry point.
+"""Smart Fitness Session Analyzer -- program entry point.
 
-Pulls simulated data from the ``data_generator``,
-converts it into typed objects, validates it, analyzes the session, and
-prints a report. Running this file against every documented scenario is a
-quick way to sanity check the classification rules end to end.
+Run from the repository root:
+
+    python3 main.py
 """
 
-from data_generator import available_scenarios, generate_fitness_data
-
-from analysis import classify_session, compute_metrics
-from models import Observation, ParticipantProfile
-from report import build_report
-from validation import validate_all
+from analysis import analyze_session
+from reporting import build_report
+from sample_data import DEMO_SCENARIOS, generator_scenarios, load_demo_sessions
 
 
-def analyze_session(participant_id: str, scenario: str, seed: int, number_of_windows: int = 12) -> str:
-    raw_profile, raw_observations = generate_fitness_data(
-        participant_id=participant_id,
-        scenario=scenario,
-        seed=seed,
-        number_of_windows=number_of_windows,
-    )
-
-    profile = ParticipantProfile.from_dict(raw_profile)
-    observations = [Observation.from_dict(o) for o in raw_observations]
-
-    validated = validate_all(observations)
-    metrics = compute_metrics(profile, validated)
-    classification = classify_session(metrics)
-
-    return build_report(profile, validated, metrics, classification)
+def print_summary_table(results):
+    """Print a compact overview of how every scenario was classified."""
+    print()
+    print("=" * 66)
+    print("SUMMARY OF ALL SCENARIOS")
+    print("=" * 66)
+    header = f"{'scenario':<20}{'participant':<14}{'usable':<10}{'classification'}"
+    print(header)
+    print("-" * 66)
+    for result in results:
+        quality = result["data_quality"]
+        usable = f"{quality['usable_observations']}/{quality['total_observations']}"
+        print(
+            f"{result['scenario']:<20}"
+            f"{result['participant']['participant_id']:<14}"
+            f"{usable:<10}"
+            f"{result['classification']['label']}"
+        )
+    print("=" * 66)
 
 
 def main():
-    print("Available scenarios:", available_scenarios())
+    print("Smart Fitness Session Analyzer")
+    print(f"Scenarios supported by the data generator: {generator_scenarios()}")
     print()
 
-    for scenario in available_scenarios():
-        report = analyze_session(
-            participant_id="P001",
-            scenario=scenario,
-            seed=42,
-            number_of_windows=12,
-        )
-        print(report)
+    sessions = load_demo_sessions()
+    results = []
+
+    for session, meta in zip(sessions, DEMO_SCENARIOS):
+        print(f"### {meta['note']}")
+        result = analyze_session(session)
+        results.append(result)
+        print(build_report(result))
         print()
+
+    print_summary_table(results)
 
 
 if __name__ == "__main__":
