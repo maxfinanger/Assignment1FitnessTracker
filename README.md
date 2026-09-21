@@ -37,8 +37,8 @@ To run the test suite:
 python3 tests.py
 ```
 
-No third party packages are needed — the project uses only the Python standard
-library (`random`, `statistics`, `typing`). `requirements.txt` records this. 
+No additional packages are needed, the project only uses the Python standard
+library (`random`, `statistics`, `typing`). `requirements.txt` formally says this, I have not added the usual `install requirements.txt.` since there is nothing in that file except for a comment explaining it.
 
 ---
 
@@ -106,7 +106,7 @@ participant, which is why the constructor refuses to build one without a valid
 
 ### Encapsulation — protected attributes behind properties
 
-`ParticipantProfile` stores its baselines as `_baseline_heart_rate` etc, exposing them only through read only properties. Baselines are the reference point for every calculation in the program. Allowing other code to reassign them mid analysis would silently invalidate results that still looked perfectly plausible.
+`ParticipantProfile` stores baselines as `_baseline_heart_rate` etc, exposing them only through read only properties. Baselines are the reference point for every calculation in the program. Allowing other code to reassign them mid analysis would silently invalidate results that still looked perfectly plausible.
 
 `TrainingSession` protects its observation list the same way. The `observations`
 property returns a **copy**, so external code cannot append to, reorder or empty the
@@ -127,7 +127,7 @@ recovery check depends on being correct.
 
 The split reflects a real distinction: *every* sensor window has a timestamp and a
 signal quality, but only a fitness window has a heart rate. Putting the shared
-concepts in a base class means a future observation type (ex. a sleep paramenter) would inherit the timestamp and signal quality handling.
+concepts in a base class means a future observation type (ex. a sleep parameter) would inherit the timestamp and signal quality handling.
 
 `FitnessObservation` overrides two methods, and in both cases **extends** the parent
 via `super()` rather than replacing it:
@@ -174,8 +174,7 @@ Sessions hold a `list` of observations; validation issues accumulate in `list`s;
 
 ## 6. Validation rules and assumptions
 
-Every window is checked field by field, and **all** problems are reported rather than
-just the first, so the report can explain exactly why a window was dropped.
+Every window is checked field by field, and **all** problems are reported rather than just the first, so the report can explain exactly why a window was dropped.
 
 | Field | Rule |
 |---|---|
