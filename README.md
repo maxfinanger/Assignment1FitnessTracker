@@ -1,7 +1,5 @@
 # Smart Fitness Session Analyzer
 
-**Option A — Object-Oriented Analysis Systems**
-
 **Student:** *Max Dyrø Finanger*
 **Student number:** *409915*
 
@@ -161,7 +159,7 @@ signal quality value on a `FitnessObservation` is still caught by the inherited 
 | `TrainingSession.from_generator_output()` | `classmethod` | An alternative constructor. It is the single place that knows how the generator's raw output maps onto the object model, so a change of data source touches one method. |
 | `ParticipantProfile.from_dict()` / `FitnessObservation.from_dict()` | `classmethod` | Same reasoning at the level of individual objects: the dictionary key names appear once each. |
 | `TrainingSession.summarize()` | `staticmethod` | A pure calculation over a list of numbers, returning average/minimum/maximum. It needs nothing from a particular session, so binding it to an instance would be misleading — and as a static method it can be tested directly on its own. |
-| `FitnessObservation._check_bounded()` / `._check_non_negative()` | `staticmethod` | Field-checking helpers that depend only on their arguments. Keeping them static makes the bounds logic reusable across fields and independently testable. |
+| `FitnessObservation._check_bounded()` / `._check_non_negative()` | `staticmethod` | Field checking helpers that depend only on their arguments. Keeping them static makes the bounds logic reusable across fields and independently testable. |
 
 ### Standalone functions
 
@@ -201,11 +199,7 @@ just the first, so the report can explain exactly why a window was dropped.
 **Assumptions and decisions:**
 
 - **Bounds are slightly wider than the documented "normal" ranges.**
-  `DATA_DESCRIPTION.md` gives heart rate as normally 35–205 bpm; this program rejects
-  outside 30–220. The documented range describes what the generator usually produces,
-  not what is physiologically possible, so widening it slightly avoids discarding
-  genuine extremes while still catching impossible readings such as the 265 bpm the
-  poor-quality scenario injects.
+  `DATA_DESCRIPTION.md` gives heart rate as normally 35–205 bpm; this program rejects outside 30–220. The documented range describes what the generator usually produces, not what is physiologically possible, so widening it slightly avoids discarding genuine extremes while still catching impossible readings such as the 265 bpm the poor quality scenario injects.
 
 - **Low signal quality is a warning, not a rejection.** A reading with a plausible
   value but a signal quality of 0.2 is kept and listed under "low confidence", not
@@ -214,18 +208,14 @@ just the first, so the report can explain exactly why a window was dropped.
   so the program instead handles the problem at session level: if average signal
   quality across the session falls below 0.60, the whole session is declared
   unclassifiable. This keeps a single weak window from being dramatic, while a
-  session-wide quality collapse is still caught.
+  session wide quality collapse is still caught.
 
-- **`True` is not a number.** Python treats `bool` as a subclass of `int`, so a stray
-  `True` would otherwise pass as a heart rate of 1. The numeric check excludes it
-  explicitly.
+- **`True` is not a number.** Python treats `bool` as a subclass of `int`, so a stray `True` would otherwise pass as a heart rate of 1. The numeric check excludes it explicitly.
 
 - **Boundary values are valid.** An activity level of exactly 0.0 or 1.0, or a
   temperature of exactly 42 °C, is accepted. The documented ranges are inclusive.
 
-- **Everything is relative to the individual.** No absolute heart-rate thresholds are
-  used anywhere. 95 bpm is hard work for one person and an easy walk for another, so
-  all rules operate on the difference from that participant's own baseline.
+- **Everything is relative to the individual.** No absolute heart rate thresholds are used anywhere. 95 bpm is hard work for one person and an easy walk for another, so all rules operate on the difference from that participant's own baseline.
 
 ---
 
@@ -379,8 +369,7 @@ poor_quality        P005          0/12      insufficient_data
 `python3 tests.py` runs 40 tests with no third party test runner. They are grouped
 into four areas:
 
-- **Object model** — read only baselines, protected observation list, type checking on
-  `add_observation()`, timestamp ordering, that `FitnessObservation` extends
+- **Object model** — read only baselines, protected observation list, type checking on `add_observation()`, timestamp ordering, that `FitnessObservation` extends
   `BaseObservation`, and that overriding extends rather than replaces the parent.
 - **Validation** — missing values, impossible values, negative movement, booleans
   rejected as numbers, boundary values accepted, low signal quality flagged but not

@@ -1,11 +1,11 @@
 """Domain classes for the Smart Fitness Session Analyzer.
 
-* ``ParticipantProfile`` -- encapsulates a participant's personal reference
-  values behind read-only properties.
+* ``ParticipantProfile`` -- encapsulates a participants personal reference
+  values behind read only properties.
 * ``BaseObservation`` -- the generic idea of "one measurement window from a
   wearable sensor": it knows its timestamp and signal quality, and knows how
   to validate and serialize *those* fields.
-* ``FitnessObservation`` -- a fitness-specific window that adds heart rate,
+* ``FitnessObservation`` -- a fitness specific window that adds heart rate,
   skin response, temperature and activity level. It **overrides**
   ``validate()`` and ``to_dict()``, extending the base behavior via
   ``super()`` rather than replacing it.
@@ -254,7 +254,7 @@ class FitnessObservation(BaseObservation):
 
 
 class TrainingSession:
-    """A participant's complete training session: profile + ordered windows.
+    """A participants complete training session: profile + ordered windows.
 
     This is the composition in the design. The session owns its observations
     (they are created for it and have no independent life outside it) and
