@@ -13,7 +13,7 @@ The program can run five scenarios end to end: a resting session, a moderate ses
 
 The measurement data comes from the instructor-supplied `data_generator.py`, which is included and unmodified.
 
-I have used Claude as a tool when developing this assignment, I used it to help me implement the initial solution and as a tool to further improve the solution to fulfill all the criteria set for this assignment. 
+I have used Claude as a tool when developing this assignment, I used it to help me write the README.md report and as a tool to further improve the solution to fulfill all the criteria set for this assignment. 
 
 ---
 
